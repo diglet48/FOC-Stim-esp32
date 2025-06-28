@@ -152,10 +152,11 @@ extern "C" {
         create_usb_serial_task(usb_serial_rx, usb_serial_tx);
         create_stm32_serial_task(stm_serial_rx, stm_serial_tx);
         // wifi_init_sta();
-        create_tcp_server_task(tcp_rx, tcp_tx);
+        // create_tcp_server_task(tcp_rx, tcp_tx);
 
         forward("fw usb->stm", usb_serial_rx, stm_serial_tx, nullptr);
-        forward("fw stm->usb + tcp", stm_serial_rx, usb_serial_tx, tcp_tx);
+        // forward("fw stm->usb + tcp", stm_serial_rx, usb_serial_tx, tcp_tx);
+        forward("fw stm->usb + tcp", stm_serial_rx, usb_serial_tx, nullptr);
         forward("fw tcp->stm", tcp_rx, stm_serial_tx, nullptr);
     }
 }
