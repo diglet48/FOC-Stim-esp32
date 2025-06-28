@@ -1,0 +1,7 @@
+
+
+#define EXAMPLE_ESP_WIFI_SSID      "YOUR SSID HERE"
+#define EXAMPLE_ESP_WIFI_PASS      "YOUR PASSWORD HERE"
+#define EXAMPLE_ESP_MAXIMUM_RETRY  15
+
+void wifi_init_sta(void);
