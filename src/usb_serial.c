@@ -21,7 +21,7 @@ static void usb_rx_task(void *pvParameters)
 
             UBaseType_t res = xRingbufferSend(ringbuf, data, len, pdMS_TO_TICKS(1000));
             if (res != pdTRUE) {
-                printf("Failed to send item\n");
+                ESP_LOGE("usb rx", "Failed to send item");
             }
         }
     }

@@ -1,7 +1,6 @@
 #include "uart.h"
 
 #include <stdio.h>
-#include <algorithm>
 #include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -16,49 +15,16 @@
 #define BUF_SIZE (256)
 #define STACK_SIZE (4096 * 2)
 
-// #define ECHO_TEST_TXD 18
-// #define ECHO_TEST_RXD 17
-#define ECHO_TEST_TXD 43
-#define ECHO_TEST_RXD 44
+#define ECHO_TEST_TXD 18
+#define ECHO_TEST_RXD 17
+// #define ECHO_TEST_TXD 43 // V3
+// #define ECHO_TEST_RXD 44 // V3
 
 #define ECHO_UART_PORT_NUM      UART_NUM_0
 #define ECHO_UART_BAUD_RATE     115200
 
 static const char *TAG = "uart_events";
 static QueueHandle_t uart_queue;
-
-
-// static void serial_rx_task(void *pvParameters)
-// {
-//     RingbufHandle_t ringbuf = (RingbufHandle_t)pvParameters;
-
-//     // Configure a temporary buffer for the incoming data
-//     uint8_t *data = (uint8_t *) malloc(BUF_SIZE);
-//     if (data == NULL) {
-//         ESP_LOGE("uart rx", "no memory for data");
-//         return;
-//     }
-
-//     while (1) {
-//         // Read data from UART
-//         size_t len = 0;
-//         ESP_ERROR_CHECK(uart_get_buffered_data_len(ECHO_UART_PORT_NUM, &len));
-//         len = std::min(len, (size_t)BUF_SIZE);
-//         len = std::max(len, (size_t)1);
-//         len = uart_read_bytes(ECHO_UART_PORT_NUM, data, len, pdMS_TO_TICKS(20));
-
-//         // int len = uart_read_bytes(ECHO_UART_PORT_NUM, data, BUF_SIZE, pdMS_TO_TICKS(100));
-//         if (len) {
-//             // ESP_LOGE("uart rx", "%d bytes in", len);
-
-//             UBaseType_t res = xRingbufferSend(ringbuf, data, len, pdMS_TO_TICKS(1000));
-//             if (res != pdTRUE) {
-//                 printf("Failed to send item\n");
-//             }
-//         }
-//     }
-// }
-
 
 
 static void uart_rx_task(void *pvParameters)
@@ -149,7 +115,6 @@ void create_stm32_serial_task(RingbufHandle_t rx_buffer, RingbufHandle_t tx_buff
         .source_clk = UART_SCLK_XTAL,
     };
 
-    // ESP_ERROR_CHECK(uart_driver_install(ECHO_UART_PORT_NUM, BUF_SIZE * 2, 0, 0, NULL, 0));
     ESP_ERROR_CHECK(uart_driver_install(ECHO_UART_PORT_NUM, BUF_SIZE * 2, 0, 20, &uart_queue, 0));
     ESP_ERROR_CHECK(uart_param_config(ECHO_UART_PORT_NUM, &uart_config));
 
@@ -157,11 +122,8 @@ void create_stm32_serial_task(RingbufHandle_t rx_buffer, RingbufHandle_t tx_buff
     ESP_ERROR_CHECK(uart_set_rx_timeout(ECHO_UART_PORT_NUM, 5));
     ESP_ERROR_CHECK(uart_enable_rx_intr(ECHO_UART_PORT_NUM));
 
-    // ESP_ERROR_CHECK(uart_intr_config(ECHO_UART_PORT_NUM, &uart_intr));
     ESP_ERROR_CHECK(uart_set_pin(ECHO_UART_PORT_NUM, ECHO_TEST_TXD, ECHO_TEST_RXD, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
 
-
-    // xTaskCreate(serial_rx_task, "uart rx task", STACK_SIZE, (void*)rx_buffer, 10, NULL);
     xTaskCreate(uart_rx_task, "uart rx task", STACK_SIZE, (void*)rx_buffer, 10, NULL);
     xTaskCreate(uart_tx_task, "uart tx task", STACK_SIZE, (void*)tx_buffer, 10, NULL);
 }

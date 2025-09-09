@@ -172,7 +172,7 @@ static void tcp_tx_task(void *pvParameters) {
 
             // try to write the data to the socket, if connected
             EventBits_t bits = xEventGroupGetBits(socket_event_group);
-            if (bool(bits & SOCKET_CONNECTED_BIT) && !bool(bits & SOCKET_DISCONNECTED_BIT)) {
+            if ((bits & SOCKET_CONNECTED_BIT) && !(bits & SOCKET_DISCONNECTED_BIT)) {
 
                 // send() can return less bytes than supplied length.
                 // Walk-around for robust implementation.
