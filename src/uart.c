@@ -20,7 +20,7 @@
 // #define ECHO_TEST_TXD 43 // V3
 // #define ECHO_TEST_RXD 44 // V3
 
-#define ECHO_UART_PORT_NUM      UART_NUM_0
+#define ECHO_UART_PORT_NUM      UART_NUM_2
 #define ECHO_UART_BAUD_RATE     115200
 
 static const char *TAG = "uart_events";
