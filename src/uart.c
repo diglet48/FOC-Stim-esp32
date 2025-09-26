@@ -64,6 +64,13 @@ static void uart_rx_task(void *pvParameters)
                 uart_flush_input(ECHO_UART_PORT_NUM);
                 xQueueReset(uart_queue);
                 break;
+            case UART_PARITY_ERR:
+                ESP_LOGI(TAG, "Parity error");
+                // If buffer full happened, you should consider increasing your buffer size
+                // As an example, we directly flush the rx buffer here in order to read more data.
+                uart_flush_input(ECHO_UART_PORT_NUM);
+                xQueueReset(uart_queue);
+                break;
             //Others
             default:
                 ESP_LOGI(TAG, "uart event type: %d", event.type);

@@ -163,10 +163,15 @@ void app_main(void)
     wifi_init_sta();
     create_tcp_server_task(tcp_rx, tcp_tx);
 
+    // write all incoming bytes on USB serial to stm32
     forward("fw usb->stm", usb_serial_rx, stm_serial_tx, NULL);
-    forward("fw stm->usb + tcp", stm_serial_rx, usb_serial_tx, tcp_tx);
-    // forward("fw stm->usb + tcp", stm_serial_rx, usb_serial_tx, NULL);
+    // write all incoming bytes on tcp socket to stm32
     forward("fw tcp->stm", tcp_rx, stm_serial_tx, NULL);
+    // write all incoming bytes from the stm32 to both USB serial and TCP sockets
+    forward("fw stm->usb + tcp", stm_serial_rx, usb_serial_tx, tcp_tx);
+
+    // Disable logging to prevent interruptions in restim data stream.
+    esp_log_set_level_master(ESP_LOG_NONE);
 }
 
 

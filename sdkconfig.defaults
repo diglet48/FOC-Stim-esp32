@@ -1,6 +1,9 @@
 # enable power management (DFS)
 CONFIG_PM_ENABLE=y
 
+# enable loglevel control
+CONFIG_LOG_MASTER_LEVEL=y
+
 #CONFIG_TINYUSB_MSC_ENABLED=y
 #
 #CONFIG_PARTITION_TABLE_CUSTOM=y
