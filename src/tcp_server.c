@@ -99,7 +99,9 @@ static void tcp_server_task(void *pvParameters)
         }
         ESP_LOGI(TAG, "Socket accepted ip address: %s", addr_str);
 
-        // do_retransmit(sock);
+
+        // disable wifi modem power saving for better performance
+        ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
 
         tcp_socket_fd = sock;
         xEventGroupSetBits(socket_event_group, SOCKET_CONNECTED_BIT);
@@ -109,6 +111,9 @@ static void tcp_server_task(void *pvParameters)
             pdFALSE,
             portMAX_DELAY);
         xEventGroupClearBits(socket_event_group, SOCKET_DISCONNECTED_BIT);
+
+        // enable wifi modem power saving again
+        ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_MAX_MODEM));
 
         shutdown(sock, 0);
         close(sock);
