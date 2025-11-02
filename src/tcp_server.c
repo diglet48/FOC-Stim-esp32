@@ -21,6 +21,7 @@
 #define KEEPALIVE_IDLE              5
 #define KEEPALIVE_INTERVAL          5
 #define KEEPALIVE_COUNT             3
+#define NODELAY                     1
 
 static const char *TAG = "tcp_server";
 
@@ -42,6 +43,7 @@ static void tcp_server_task(void *pvParameters)
     int keepIdle = KEEPALIVE_IDLE;
     int keepInterval = KEEPALIVE_INTERVAL;
     int keepCount = KEEPALIVE_COUNT;
+    int noDelay = NODELAY;
     struct sockaddr_storage dest_addr;
 
     if (addr_family == AF_INET) {
@@ -93,6 +95,7 @@ static void tcp_server_task(void *pvParameters)
         setsockopt(sock, IPPROTO_TCP, TCP_KEEPIDLE, &keepIdle, sizeof(int));
         setsockopt(sock, IPPROTO_TCP, TCP_KEEPINTVL, &keepInterval, sizeof(int));
         setsockopt(sock, IPPROTO_TCP, TCP_KEEPCNT, &keepCount, sizeof(int));
+        setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, &noDelay, sizeof(int));
         // Convert ip address to string
         if (source_addr.ss_family == PF_INET) {
             inet_ntoa_r(((struct sockaddr_in *)&source_addr)->sin_addr, addr_str, sizeof(addr_str) - 1);

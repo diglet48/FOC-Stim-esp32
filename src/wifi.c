@@ -56,6 +56,8 @@ static void event_handler(void* arg, esp_event_base_t event_base,
         }
         ESP_LOGI("wifi_event", "connect to the AP fail");
         ip = 0;
+    } else if (event_base == WIFI_EVENT) {
+        ESP_LOGI("wifi_event",  "unknown event", event_id);
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
         ESP_LOGI("wifi_event", "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
@@ -90,12 +92,8 @@ void wifi_init_sta(void)
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_start());
 
-    // TODO: improve power saving
-    // ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_NONE));
-    // ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_MIN_MODEM));
+    // Set wifi power saving.
     ESP_ERROR_CHECK(esp_wifi_set_ps(WIFI_PS_MAX_MODEM));
-
-    // TODO: disable log messages of wifi?
 }
 
 
