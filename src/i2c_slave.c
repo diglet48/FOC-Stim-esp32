@@ -4,6 +4,7 @@
 #include <string.h>
 #include "esp_log.h"
 
+#include "board_config.h"
 #include "i2c_slave_driver.h"
 #include "wifi.h"
 
@@ -12,8 +13,6 @@ static const char *TAG = "i2c_slave";
 
 #define STACK_SIZE (4096)
 
-#define I2C_SLAVE_SCL_IO (GPIO_NUM_7)
-#define I2C_SLAVE_SDA_IO (GPIO_NUM_1)
 #define I2C_SLAVE_NUM    0
 #define DATA_LENGTH      100
 
@@ -122,8 +121,8 @@ void init_i2c_slave()
     i2c_slave_config_t slave_config = {
         .callback = slave_callback,
         .address = ESP32_I2C_ADDRESS,
-        .gpio_scl = I2C_SLAVE_SCL_IO,
-        .gpio_sda = I2C_SLAVE_SDA_IO,
+        .gpio_scl = FOC_I2C_SCL_GPIO,
+        .gpio_sda = FOC_I2C_SDA_GPIO,
         .i2c_port = I2C_SLAVE_NUM
     };
 

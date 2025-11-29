@@ -3,10 +3,11 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+#include "board_config.h"
+
 
 #define LEDC_TIMER      LEDC_TIMER_0
 #define LEDC_MODE       LEDC_LOW_SPEED_MODE
-#define LEDC_OUTPUT_IO  (11) // GPIO num
 #define LEDC_CHANNEL    LEDC_CHANNEL_0
 #define LEDC_DUTY_RES   LEDC_TIMER_10_BIT
 #define LEDC_DUTY       (1024)
@@ -42,7 +43,7 @@ void init_boot_led(void)
 
     // Prepare and then apply the LEDC PWM channel configuration
     ledc_channel_config_t ledc_channel = {
-        .gpio_num = LEDC_OUTPUT_IO,
+        .gpio_num = FOC_LED_GPIO,
         .speed_mode = LEDC_MODE,
         .channel = LEDC_CHANNEL,
         .intr_type = LEDC_INTR_DISABLE,

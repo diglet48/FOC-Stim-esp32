@@ -11,17 +11,13 @@
 #include "soc/uart_reg.h"
 #include "sdkconfig.h"
 #include "esp_log.h"
+#include "board_config.h"
 
 #define BUF_SIZE (256)
 #define STACK_SIZE (4096 * 2)
 
-#define ECHO_TEST_TXD 18
-#define ECHO_TEST_RXD 17
-// #define ECHO_TEST_TXD 43 // V3
-// #define ECHO_TEST_RXD 44 // V3
-
-#define ECHO_UART_PORT_NUM      UART_NUM_2
-#define ECHO_UART_BAUD_RATE     115200
+#define UART_PORT_NUM      UART_NUM_2
+#define UART_BAUD_RATE     115200
 
 static const char *TAG = "uart_events";
 static QueueHandle_t uart_queue;
@@ -41,7 +37,7 @@ static void uart_rx_task(void *pvParameters)
             case UART_DATA:
                 TRY_STATIC_ASSERT(event.size <= BUF_SIZE, "UART RX BUF too small");
                 // ESP_LOGI(TAG, "[UART DATA]: %d %i", event.size, event.timeout_flag);
-                uart_read_bytes(ECHO_UART_PORT_NUM, dtmp, event.size, portMAX_DELAY);
+                uart_read_bytes(UART_PORT_NUM, dtmp, event.size, portMAX_DELAY);
                 res = xRingbufferSend(ringbuf, dtmp, event.size, pdMS_TO_TICKS(1000));
                 if (res != pdTRUE) {
                     ESP_LOGE(TAG, "Failed to send item");
@@ -53,7 +49,7 @@ static void uart_rx_task(void *pvParameters)
                 // If fifo overflow happened, you should consider adding flow control for your application.
                 // The ISR has already reset the rx FIFO,
                 // As an example, we directly flush the rx buffer here in order to read more data.
-                uart_flush_input(ECHO_UART_PORT_NUM);
+                uart_flush_input(UART_PORT_NUM);
                 xQueueReset(uart_queue);
                 break;
             //Event of UART ring buffer full
@@ -61,14 +57,14 @@ static void uart_rx_task(void *pvParameters)
                 ESP_LOGI(TAG, "ring buffer full");
                 // If buffer full happened, you should consider increasing your buffer size
                 // As an example, we directly flush the rx buffer here in order to read more data.
-                uart_flush_input(ECHO_UART_PORT_NUM);
+                uart_flush_input(UART_PORT_NUM);
                 xQueueReset(uart_queue);
                 break;
             case UART_PARITY_ERR:
                 ESP_LOGI(TAG, "Parity error");
                 // If buffer full happened, you should consider increasing your buffer size
                 // As an example, we directly flush the rx buffer here in order to read more data.
-                uart_flush_input(ECHO_UART_PORT_NUM);
+                uart_flush_input(UART_PORT_NUM);
                 xQueueReset(uart_queue);
                 break;
             //Others
@@ -97,7 +93,7 @@ static void uart_tx_task(void *pvParameters) {
             // ESP_LOGI("uart tx", "write %d bytes to tx", item_size);
 
             // Write data back to the UART
-            uart_write_bytes(ECHO_UART_PORT_NUM, (const char *) data, item_size);
+            uart_write_bytes(UART_PORT_NUM, (const char *) data, item_size);
 
             //Return Item
             vRingbufferReturnItem(ringbuf, (void *)data);
@@ -113,7 +109,7 @@ void create_stm32_serial_task(RingbufHandle_t rx_buffer, RingbufHandle_t tx_buff
     /* Configure parameters of an UART driver,
      * communication pins and install the driver */
     uart_config_t uart_config = {
-        .baud_rate = ECHO_UART_BAUD_RATE,
+        .baud_rate = UART_BAUD_RATE,
         .data_bits = UART_DATA_8_BITS,
         .parity    = UART_PARITY_EVEN,
         .stop_bits = UART_STOP_BITS_1,
@@ -122,14 +118,14 @@ void create_stm32_serial_task(RingbufHandle_t rx_buffer, RingbufHandle_t tx_buff
         .source_clk = UART_SCLK_XTAL,
     };
 
-    ESP_ERROR_CHECK(uart_driver_install(ECHO_UART_PORT_NUM, BUF_SIZE * 2, 0, 20, &uart_queue, 0));
-    ESP_ERROR_CHECK(uart_param_config(ECHO_UART_PORT_NUM, &uart_config));
+    ESP_ERROR_CHECK(uart_driver_install(UART_PORT_NUM, BUF_SIZE * 2, 0, 20, &uart_queue, 0));
+    ESP_ERROR_CHECK(uart_param_config(UART_PORT_NUM, &uart_config));
 
-    ESP_ERROR_CHECK(uart_set_rx_full_threshold(ECHO_UART_PORT_NUM, 32));
-    ESP_ERROR_CHECK(uart_set_rx_timeout(ECHO_UART_PORT_NUM, 5));
-    ESP_ERROR_CHECK(uart_enable_rx_intr(ECHO_UART_PORT_NUM));
+    ESP_ERROR_CHECK(uart_set_rx_full_threshold(UART_PORT_NUM, 32));
+    ESP_ERROR_CHECK(uart_set_rx_timeout(UART_PORT_NUM, 5));
+    ESP_ERROR_CHECK(uart_enable_rx_intr(UART_PORT_NUM));
 
-    ESP_ERROR_CHECK(uart_set_pin(ECHO_UART_PORT_NUM, ECHO_TEST_TXD, ECHO_TEST_RXD, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+    ESP_ERROR_CHECK(uart_set_pin(UART_PORT_NUM, FOC_UART_TX_GPIO, FOC_UART_RX_GPIO, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
 
     xTaskCreate(uart_rx_task, "uart rx task", STACK_SIZE, (void*)rx_buffer, 10, NULL);
     xTaskCreate(uart_tx_task, "uart tx task", STACK_SIZE, (void*)tx_buffer, 10, NULL);
