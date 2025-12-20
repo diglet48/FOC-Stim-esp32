@@ -137,12 +137,12 @@ void app_main(void)
     ESP_ERROR_CHECK(ret);
 
     //Create ring buffers
-    usb_serial_rx = xRingbufferCreate(1028, RINGBUF_TYPE_BYTEBUF);
-    usb_serial_tx = xRingbufferCreate(1028, RINGBUF_TYPE_BYTEBUF);
-    stm_serial_rx = xRingbufferCreate(1028, RINGBUF_TYPE_BYTEBUF);
-    stm_serial_tx = xRingbufferCreate(1028, RINGBUF_TYPE_BYTEBUF);
-    tcp_rx = xRingbufferCreate(1028, RINGBUF_TYPE_BYTEBUF);
-    tcp_tx = xRingbufferCreate(1028, RINGBUF_TYPE_BYTEBUF);
+    usb_serial_rx = xRingbufferCreate(1000, RINGBUF_TYPE_BYTEBUF);
+    usb_serial_tx = xRingbufferCreate(1000, RINGBUF_TYPE_BYTEBUF);
+    stm_serial_rx = xRingbufferCreate(1000, RINGBUF_TYPE_BYTEBUF);
+    stm_serial_tx = xRingbufferCreate(1000, RINGBUF_TYPE_BYTEBUF);
+    tcp_rx = xRingbufferCreate(1000, RINGBUF_TYPE_BYTEBUF);
+    tcp_tx = xRingbufferCreate(16000, RINGBUF_TYPE_BYTEBUF);
     assert(usb_serial_rx);
     assert(usb_serial_tx);
     assert(stm_serial_rx);
