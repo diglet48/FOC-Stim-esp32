@@ -56,13 +56,13 @@ static void ringbuffer_forward_task(void *pvParameters) {
         if (data != NULL) {
             // ESP_LOGI(params.tag, "write %d bytes", len);
 
-            UBaseType_t res = xRingbufferSend(params.out1, data, len, pdMS_TO_TICKS(1000));
+            UBaseType_t res = xRingbufferSend(params.out1, data, len, pdMS_TO_TICKS(0));
             if (res != pdTRUE) {
                 ESP_LOGW(params.tag, "Failed to send item");
             }
 
             if (params.out2) {
-                UBaseType_t res = xRingbufferSend(params.out2, data, len, pdMS_TO_TICKS(1000));
+                UBaseType_t res = xRingbufferSend(params.out2, data, len, pdMS_TO_TICKS(0));
                 if (res != pdTRUE) {
                     ESP_LOGW(params.tag, "Failed to send item (2)");
                 }

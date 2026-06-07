@@ -40,7 +40,7 @@ uint8_t password[64];
 static bool slave_callback(struct i2c_slave_device_t *dev, I2CSlaveCallbackReason reason)
 {
     if (reason == I2C_CALLBACK_REPEAT_START) {
-        // ignore
+        // We do not support repeat start
     }
     if (reason == I2C_CALLBACK_DONE) {
         txbuffer_len = 0;

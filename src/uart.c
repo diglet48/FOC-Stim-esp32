@@ -15,6 +15,8 @@
 
 #define BUF_SIZE (256)
 #define STACK_SIZE (4096 * 2)
+#define RX_FULL_THRESHOLD 128   // UART_DATA event generated when this many bytes have been received
+#define RX_TIMEOUT  5           // UART_DATA event generated when this many uart symbol periods are empty
 
 #define UART_PORT_NUM      UART_NUM_2
 #define UART_BAUD_RATE     115200
@@ -38,10 +40,14 @@ static void uart_rx_task(void *pvParameters)
                 TRY_STATIC_ASSERT(event.size <= BUF_SIZE, "UART RX BUF too small");
                 // ESP_LOGI(TAG, "[UART DATA]: %d %i", event.size, event.timeout_flag);
                 uart_read_bytes(UART_PORT_NUM, dtmp, event.size, portMAX_DELAY);
-                res = xRingbufferSend(ringbuf, dtmp, event.size, pdMS_TO_TICKS(1000));
+                res = xRingbufferSend(ringbuf, dtmp, event.size, pdMS_TO_TICKS(0));
                 if (res != pdTRUE) {
                     ESP_LOGE(TAG, "Failed to send item");
                 }
+                // ESP_LOGI(TAG, "read %i bytes", event.size);
+                break;
+            case UART_BREAK:
+
                 break;
             //Event of HW FIFO overflow detected
             case UART_FIFO_OVF:
@@ -62,8 +68,7 @@ static void uart_rx_task(void *pvParameters)
                 break;
             case UART_PARITY_ERR:
                 ESP_LOGI(TAG, "Parity error");
-                // If buffer full happened, you should consider increasing your buffer size
-                // As an example, we directly flush the rx buffer here in order to read more data.
+                // Parity error
                 uart_flush_input(UART_PORT_NUM);
                 xQueueReset(uart_queue);
                 break;
@@ -115,14 +120,15 @@ void create_stm32_serial_task(RingbufHandle_t rx_buffer, RingbufHandle_t tx_buff
         .stop_bits = UART_STOP_BITS_1,
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
         // .source_clk = UART_SCLK_DEFAULT,
-        .source_clk = UART_SCLK_XTAL,
+        // .source_clk = UART_SCLK_XTAL,
+        .source_clk = UART_SCLK_RTC,
     };
 
     ESP_ERROR_CHECK(uart_driver_install(UART_PORT_NUM, BUF_SIZE * 2, 0, 20, &uart_queue, 0));
     ESP_ERROR_CHECK(uart_param_config(UART_PORT_NUM, &uart_config));
 
-    ESP_ERROR_CHECK(uart_set_rx_full_threshold(UART_PORT_NUM, 32));
-    ESP_ERROR_CHECK(uart_set_rx_timeout(UART_PORT_NUM, 5));
+    ESP_ERROR_CHECK(uart_set_rx_full_threshold(UART_PORT_NUM, RX_FULL_THRESHOLD));
+    ESP_ERROR_CHECK(uart_set_rx_timeout(UART_PORT_NUM, RX_TIMEOUT));
     ESP_ERROR_CHECK(uart_enable_rx_intr(UART_PORT_NUM));
 
     ESP_ERROR_CHECK(uart_set_pin(UART_PORT_NUM, FOC_UART_TX_GPIO, FOC_UART_RX_GPIO, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
