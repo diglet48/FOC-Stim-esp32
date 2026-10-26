@@ -50,7 +50,10 @@ static bool slave_callback(struct i2c_slave_device_t *dev, I2CSlaveCallbackReaso
             uint8_t cmd = dev->buffer[0];
             switch (cmd) {
                 case ESP32_COMMAND_FWVERSION:
-                    // TODO
+                    txbuffer[0] = ESP32_FWVERSION_MAJOR;
+                    txbuffer[1] = ESP32_FWVERSION_MINOR;
+                    txbuffer[2] = ESP32_FWVERSION_REVISION;
+                    txbuffer_len = 3;
                     break;
 
                 case ESP32_COMMAND_IP:

@@ -1,5 +1,9 @@
 #include "driver/gpio.h"
 
+#define ESP32_FWVERSION_MAJOR   1
+#define ESP32_FWVERSION_MINOR   1
+#define ESP32_FWVERSION_REVISION    0
+
 #define TCP_TX_INTERVAL_MS     10
 
 #define FOC_LED_GPIO (GPIO_NUM_11)
