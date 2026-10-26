@@ -1,5 +1,6 @@
 #include "driver/gpio.h"
 
+#define TCP_TX_INTERVAL_MS     10
 
 #define FOC_LED_GPIO (GPIO_NUM_11)
 

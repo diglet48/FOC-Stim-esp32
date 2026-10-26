@@ -16,6 +16,7 @@
 #include "lwip/sys.h"
 #include <lwip/netdb.h>
 
+#include "board_config.h"
 
 #define PORT                        55533
 #define KEEPALIVE_IDLE              5
@@ -199,6 +200,9 @@ static void tcp_tx_task(void *pvParameters) {
 
             //Return Item
             vRingbufferReturnItem(ringbuf, (void *)data);
+
+            // small delay to limits the maximum number of packets per second.
+            vTaskDelay(pdMS_TO_TICKS(TCP_TX_INTERVAL_MS));
         } else {
             //Failed to receive item
             // printf("Failed to receive item\n");
